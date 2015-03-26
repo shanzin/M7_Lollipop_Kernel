@@ -1,0 +1,23 @@
+CROSS_COMPILE = ../toolchain/arm-eabi-4.6/bin/arm-eabi-
+
+linux_deconfig:
+							$(MAKE) ARCH=arm CROSS_COMPILE=$(CROSS_COMPILE) defconfig m7_defconfig
+
+linux_kernel:
+							$(MAKE) ARCH=arm CROSS_COMPILE=$(CROSS_COMPILE)
+							$(MAKE) ARCH=arm CROSS_COMPILE=$(CROSS_COMPILE) modules
+
+linux_clean:
+							$(MAKE) ARCH=arm CROSS_COMPILE=$(CROSS_COMPILE) clean
+
+linux_distclean:
+							$(MAKE) ARCH=arm CROSS_COMPILE=$(CROSS_COMPILE) distclean
+
+user_config_backup:						
+							mv -v .config ./arch/arm/configs/m7_user_config
+
+linux_user_deconfig:
+							cp -rv ./arch/arm/configs/m7_user_config .config
+
+linux_menuconfig:
+							$(MAKE) ARCH=arm CROSS_COMPILE=$(CROSS_COMPILE) menuconfig
