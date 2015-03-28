@@ -1,4 +1,5 @@
-CROSS_COMPILE = ../toolchain/arm-eabi-4.6/bin/arm-eabi-
+CROSS_COMPILE = ../../toolchain/arm-linux-androideabi-4.8/bin/arm-linux-androideabi-
+#CROSS_COMPILE = ../../toolchain/arm-eabi-4.6/bin/arm-eabi-
 
 linux_deconfig:
 							$(MAKE) ARCH=arm CROSS_COMPILE=$(CROSS_COMPILE) defconfig m7_defconfig

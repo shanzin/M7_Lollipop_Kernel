@@ -114,8 +114,8 @@ struct cm3629_info {
 	uint16_t cali_table[10];
 	int irq;
 	int ls_calibrate;
-	int (*power)(int, uint8_t); 
-	int (*lpm_power)(uint8_t); 
+	int (*power)(int, uint8_t);
+	int (*lpm_power)(uint8_t);
 	uint32_t als_kadc;
 	uint32_t als_gadc;
 	uint16_t golden_adc;
@@ -129,7 +129,7 @@ struct cm3629_info {
 	uint8_t original_ps_thd_set;
 	int current_level;
 	uint16_t current_adc;
-	
+
 	uint8_t inte_ps1_canc;
 	uint8_t inte_ps2_canc;
 	uint8_t ps_conf1_val;
@@ -137,7 +137,7 @@ struct cm3629_info {
 	uint8_t ps_conf1_val_from_board;
 	uint8_t ps_conf2_val_from_board;
 	uint8_t ps_conf3_val;
-	uint8_t ps_calibration_rule; 
+	uint8_t ps_calibration_rule;
 	int ps_pocket_mode;
 	unsigned long j_start;
 	unsigned long j_end;
@@ -272,7 +272,7 @@ static int _cm3629_I2C_Read2(uint16_t slaveAddr,
 		*(pdata+i) = buffer[i];
 	}
 #if 0
-	
+
 	printk(KERN_DEBUG "[cm3629] %s: I2C_RxData[0x%x] = 0x%x\n",
 		__func__, slaveAddr, buffer);
 #endif
@@ -285,7 +285,7 @@ static int _cm3629_I2C_Write2(uint16_t SlaveAddress,
 	char buffer[3];
 	int ret = 0;
 #if 0
-	
+
 	printk(KERN_DEBUG
 	"[cm3629] %s: _cm3629_I2C_Write_Byte[0x%x, 0x%x, 0x%x]\n",
 		__func__, SlaveAddress, cmd, *data);
@@ -352,7 +352,7 @@ static int get_ls_adc_value(uint32_t *als_step, int resume)
 		return -EIO;
 	}
 
-	
+
 
 	ret = _cm3629_I2C_Read2(lpi->cm3629_slave_address, ALS_data, cmd, 2);
 	if (ret < 0) {
@@ -420,7 +420,7 @@ static int get_ws_adc_value(uint32_t *als_step, bool resume)
 		return -EIO;
 	}
 
-	
+
 	ret = _cm3629_I2C_Read2(lpi->cm3629_slave_address, WS_data, cmd, 2);
 	if (ret < 0) {
 		pr_err(
@@ -438,7 +438,7 @@ static int get_ws_adc_value(uint32_t *als_step, bool resume)
 	D("[LS][cm3629] %s: w sensor raw adc = 0x%X, ws_calibrate = %d\n",
 		__func__, *als_step, lpi->ws_calibrate);
 
-	
+
 	if (!lpi->ws_calibrate) {
 		*als_step = (*als_step) * lpi->ws_gadc / lpi->ws_kadc;
 		if (*als_step > 0xFFFF)
@@ -471,7 +471,7 @@ static int get_ps_adc_value(uint8_t *ps1_adc, uint8_t *ps2_adc)
 	*ps1_adc = cmd[0];
 	*ps2_adc = cmd[1];
 #if 0
-	
+
 	pr_info("[PS][cm3629] %s: PS1_ADC = 0x%02X, PS2_ADC = 0x%02X\n",
 		__func__, *ps1_adc, *ps2_adc);
 #endif
@@ -538,13 +538,13 @@ static void report_psensor_input_event(struct cm3629_info *lpi, int interrupt_fl
 
 	lpi->j_end = jiffies;
 #if 0
-	
+
 	D("%s: j_end = %lu", __func__, lpi->j_end);
 #endif
 	ret = get_ps_adc_value(&ps1_adc, &ps2_adc);
 	if (pocket_mode_flag == 1 || psensor_enable_by_touch == 1) {
 		D("[PS][cm3629] pocket_mode_flag: %d, psensor_enable_by_touch: %d, add delay = 7ms\n", pocket_mode_flag, psensor_enable_by_touch);
-		mdelay(7); 
+		mdelay(7);
 		while (index <= 10 && ps1_adc == 0) {
 			D("[PS][cm3629]ps1_adc = 0 retry");
 			get_ps_adc_value(&ps1_adc, &ps2_adc);
@@ -596,7 +596,7 @@ static void report_psensor_input_event(struct cm3629_info *lpi, int interrupt_fl
 					msecs_to_jiffies(lpi->ps_delay_time));
 			return;
 		} else {
-			
+
 			input_report_abs(lpi->ps_input_dev, ABS_DISTANCE, -1);
 			input_sync(lpi->ps_input_dev);
 		}
@@ -610,7 +610,7 @@ static void report_psensor_input_event(struct cm3629_info *lpi, int interrupt_fl
 		lpi->ps_pocket_mode = 1;
 		D("[PS][cm3629] Ignore NEAR event\n");
 	} else {
-		
+
 		input_report_abs(lpi->ps_input_dev, ABS_DISTANCE, val);
 		input_sync(lpi->ps_input_dev);
 		blocking_notifier_call_chain(&psensor_notifier_list, val + 2 + oncall, NULL);
@@ -653,7 +653,7 @@ static void report_lsensor_input_event(struct cm3629_info *lpi, int resume)
 	ret = get_ws_adc_value(&w_adc_value, resume);
 	D("[LS][cm3629] %s: before w sensor tuned, ws_adc = 0x%X, ls_adc = 0x%X, ls_calibrate = %d, ws_calibrate = %d\n",
 		__func__, w_adc_value, adc_value, lpi->ls_calibrate, lpi->ws_calibrate);
-			
+
 	if( adc_value >= (w_adc_value*12/10) )
 		gain = 100;
 	else
@@ -703,7 +703,7 @@ static void report_lsensor_input_event(struct cm3629_info *lpi, int resume)
 
 
 #if 0
-	
+
 	D("[cm3629] %s: *(lpi->cali_table + (i - 1)) + 1 = 0x%X, *(lpi->cali_table + i) = 0x%x \n", __func__, *(lpi->cali_table + (i - 1)) + 1, *(lpi->cali_table + i));
 #endif
 	if (f_cm3629_level >= 0) {
@@ -764,11 +764,11 @@ static void sensor_irq_do_work(struct work_struct *work)
 	struct cm3629_info *lpi = lp_info;
 	uint8_t cmd[3];
 	uint8_t add = 0;
-	
+
 	_cm3629_I2C_Read2(lpi->cm3629_slave_address, INT_FLAG, cmd, 2);
 	add = cmd[1];
 #if 0
-	
+
 	("[cm3629] %s:, INTERRUPT = 0x%x \n", __func__, add);
 #endif
 	if ((add & CM3629_PS1_IF_AWAY) || (add & CM3629_PS1_IF_CLOSE) ||
@@ -797,7 +797,7 @@ static void sensor_irq_do_work(struct work_struct *work)
 		}
 	}
 
-	if (!(add & 0x3F)) { 
+	if (!(add & 0x3F)) {
 		if (inter_error < 10) {
 			D("[PS][cm3629 warning]%s unkown interrupt: 0x%x!\n",
 			__func__, add);
@@ -848,14 +848,14 @@ static int get_stable_ps_adc_value(uint8_t *ps_adc1, uint8_t *ps_adc2)
 	}
 
 #if 0
-	
+
 	D(" Before sort: adc1[] = [%d, %d, %d], adc2[] = [%d, %d, %d]\n",
 	  adc1[0], adc1[1], adc1[2], adc2[0], adc2[1], adc2[2]);
 #endif
 	mid_adc1 = mid_value(adc1, 3);
 	mid_adc2 = mid_value(adc2, 3);
 #if 0
-	
+
 	D("After sort: adc1[] = [%d, %d, %d], adc2[] = [%d, %d, %d]\n",
 	  adc1[0], adc1[1], adc1[2], adc2[0], adc2[1], adc2[2]);
 #endif
@@ -902,7 +902,7 @@ static void polling_do_work(struct work_struct *w)
 	uint32_t ls_adc = 0;
 	uint8_t light_sensor_correction = 0;
 #if 0
-	
+
 	D("lpi->ps_enable = %d\n", lpi->ps_enable);
 #endif
 	lpi->j_end = jiffies;
@@ -921,7 +921,7 @@ static void polling_do_work(struct work_struct *w)
 	} else
 		light_sensor_correction = 0;
 #if 0
-	
+
 	D("[cm3629] Polling: ps_adc1 = 0x%02X, ps_adc2 = 0x%02X, "
 	  "ps_next_base_value = 0x%02X, ps1_thd_set = 0x%02X\n",
 	  ps_adc1, ps_adc2, lpi->mapping_table[lpi->ps_base_index],
@@ -930,7 +930,7 @@ static void polling_do_work(struct work_struct *w)
 
 	if ( min_adc > (ps_adc1 + light_sensor_correction) ) {
 #if 0
-		
+
 		D("[PS][cm3629] min_adc = %d, ps_adc1 = %d, light_sensor_correction = %d", min_adc, ps_adc1, light_sensor_correction);
 #endif
 		avg_min_adc = 0;
@@ -970,7 +970,7 @@ static void polling_do_work(struct work_struct *w)
 			if (lpi->ps1_thd_set <= avg_min_adc)
 				lpi->ps1_thd_set = 0xFF;
 
-			
+
 			cmd[0] = lpi->ps1_thd_set;
 			if (lpi->ps1_thh_diff == 0)
 				cmd[1] = lpi->ps1_thd_set + 1;
@@ -990,7 +990,7 @@ static void polling_do_work(struct work_struct *w)
 	}
 	if (avg_min_adc == 0 && lpi->ps1_thd_set != (lpi->mapping_table[0] + lpi->ps_th_add)) {
 		lpi->ps1_thd_set = (lpi->mapping_table[0] + lpi->ps_th_add);
-		
+
 		cmd[0] = lpi->ps1_thd_set;
 		if (lpi->ps1_thh_diff == 0)
 			cmd[1] = lpi->ps1_thd_set + 1;
@@ -1111,7 +1111,7 @@ static int psensor_enable(struct cm3629_info *lpi)
 	blocking_notifier_call_chain(&psensor_notifier_list, 1 + oncall, NULL);
 	lpi->j_start = jiffies;
 
-	
+
 	input_report_abs(lpi->ps_input_dev, ABS_DISTANCE, -1);
 	input_sync(lpi->ps_input_dev);
 
@@ -1119,7 +1119,7 @@ static int psensor_enable(struct cm3629_info *lpi)
 
 	if (lpi->dynamical_threshold == 1 && lpi->mfg_mode != MFG_MODE &&
 			pocket_mode_flag != 1 && psensor_enable_by_touch != 1 ) {
-		
+
 		D("[PS][cm3629] default report FAR ");
 		input_report_abs(lpi->ps_input_dev, ABS_DISTANCE, 1);
 		input_sync(lpi->ps_input_dev);
@@ -1239,7 +1239,7 @@ static int psensor_disable(struct cm3629_info *lpi)
 		lpi->ps_base_index = (lpi->mapping_size - 1);
 		if (lpi->ps1_thd_set > Max_open_value) {
 			lpi->ps1_thd_set = lpi->original_ps_thd_set;
-			
+
 			cmd[0] = lpi->ps1_thd_set;
 			if (lpi->ps1_thh_diff == 0)
 				cmd[1] = lpi->ps1_thd_set + 1;
@@ -1396,7 +1396,7 @@ static void psensor_set_kvalue(struct cm3629_info *lpi)
 	D("[PS][cm3629] %s: PS calibrated ps_kparam1 = 0x%04X, "
 	  "ps_kparam2 = 0x%04X\n", __func__, ps_kparam1, ps_kparam2);
 	ps_conf1_val = lpi->ps_conf1_val;
-	
+
 	if (ps_kparam1 >> 16 == PS_CALIBRATED) {
 		psensor_cali = 1;
 		lpi->inte_ps1_canc = (uint8_t) (ps_kparam2 & 0xFF);
@@ -1562,7 +1562,7 @@ static long lightsensor_ioctl(struct file *file, unsigned int cmd,
 	int rc, val;
 	struct cm3629_info *lpi = lp_info;
 #if 0
-	
+
 	("[cm3629] %s cmd %d\n", __func__, _IOC_NR(cmd));
 #endif
 	switch (cmd) {
@@ -2073,7 +2073,7 @@ static ssize_t ls_adc_show(struct device *dev,
 	int ret;
 	struct cm3629_info *lpi = lp_info;
 
-	
+
 	report_lsensor_input_event(lpi, 0);
 
 	D("[LS][cm3629] %s: ADC = 0x%04X, Level = %d \n",
@@ -2089,7 +2089,7 @@ static DEVICE_ATTR(ls_adc, 0664, ls_adc_show, NULL);
 static ssize_t ls_enable_show(struct device *dev,
 				  struct device_attribute *attr, char *buf)
 {
-	
+
 	int ret = 0;
 	struct cm3629_info *lpi = lp_info;
 
@@ -2272,8 +2272,15 @@ static ssize_t ps_workaround_table_show(struct device *dev,
 {
 	struct cm3629_info *lpi = lp_info;
 	int i = 0;
+
+#if 0
 	char table_str[952] = "";
 	char temp_str[64] = "";
+#else
+    int str_size = 0;
+    char *table_str = kmalloc (952, GFP_KERNEL);
+    char *temp_str = kmalloc(64, GFP_KERNEL);
+#endif
 
 	sprintf(table_str, "mapping table size = %d\n", lpi->mapping_size);
 	printk(KERN_DEBUG "%s: table_str = %s\n", __func__, table_str);
@@ -2289,7 +2296,14 @@ static ssize_t ps_workaround_table_show(struct device *dev,
 			strcat(table_str, "\n");
 	}
 
+#if 0
 	return sprintf(buf, "%s\n", table_str);
+#else
+    str_size = sprintf(buf, "%s\n", table_str);
+    kfree(table_str);
+    kfree(temp_str);
+    return str_size;
+#endif
 }
 static ssize_t ps_workaround_table_store(struct device *dev,
 				struct device_attribute *attr,
@@ -2372,7 +2386,7 @@ static ssize_t phone_status_store(struct device *dev,
 	else
 		oncall = 4;
 
-	if (phone_status == 1 || phone_status == 2) {  
+	if (phone_status == 1 || phone_status == 2) {
 		min_adc = 255;
 		lpi->ps_base_index = (lpi->mapping_size - 1);
 	}
@@ -2382,7 +2396,7 @@ static ssize_t phone_status_store(struct device *dev,
 	if (phone_status == 2 && ps_hal_enable == 1 && lpi->dynamical_threshold == 1
 		&&(lpi->mapping_table != NULL)) {
 
-		
+
 		input_report_abs(lpi->ps_input_dev, ABS_DISTANCE, 1);
 		input_sync(lpi->ps_input_dev);
 
@@ -2402,7 +2416,7 @@ static ssize_t phone_status_store(struct device *dev,
 		lpi->ps_base_index = (lpi->mapping_size - 1);
 		if (lpi->ps1_thd_set > Max_open_value) {
 			lpi->ps1_thd_set = lpi->original_ps_thd_set;
-			
+
 			cmd[0] = lpi->ps1_thd_set;
 			if (lpi->ps1_thh_diff == 0)
 				cmd[1] = lpi->ps1_thd_set + 1;
@@ -2641,7 +2655,7 @@ static int cm3629_setup(struct cm3629_info *lpi)
 	ls_initial_cmd(lpi);
 	psensor_initial_cmd(lpi);
 
-	
+
 	cmd[0] = lpi->ps_conf1_val | CM3629_PS1_SD | CM3629_PS2_SD;
 	cmd[1] = lpi->ps_conf2_val;
 	_cm3629_I2C_Write2(lpi->cm3629_slave_address, PS_config, cmd, 3);
