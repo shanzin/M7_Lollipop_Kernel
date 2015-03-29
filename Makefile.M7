@@ -22,3 +22,7 @@ linux_user_deconfig:
 
 linux_menuconfig:
 							$(MAKE) ARCH=arm CROSS_COMPILE=$(CROSS_COMPILE) menuconfig
+
+flash_pakege_build:
+							cp -rv arch/arm/boot/zImage ../../tools/Android-Kitchen/BOOT-EXTRACTED/
+							find . -name '*ko' -exec cp '{}' ../kernel_flashable/system/lib/modules/ \;
